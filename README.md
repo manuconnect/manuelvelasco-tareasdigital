@@ -3,33 +3,36 @@ Repositorio creado con la finalidad de subir las tareas realizadas por el estudi
 
 ```mermaid
 flowchart TD
-    %% Definición de colores
-    classDef verde fill:#d5e8d4,stroke:#82b366,color:#000000;
-    classDef azul fill:#dae8fc,stroke:#6c8ebf,color:#000000;
-    classDef amarillo fill:#fff2cc,stroke:#d6b656,color:#000000;
-    classDef rojo fill:#f8cecc,stroke:#b85450,color:#000000;
-    classDef morado fill:#e1d5e7,stroke:#9673a6,color:#000000;
+    %% Estilos y paleta de colores
+    classDef init fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
+    classDef menu fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000;
+    classDef game fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000;
+    classDef err fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#000;
 
-    A([Inicio: Encendido y Reset de FPGA]):::verde
-    B[Carga de Firmware e Inicialización RV32I]:::azul
-    C[Diagnóstico del Bus de Memoria y Periféricos]:::azul
-    D{¿Periféricos listos?}:::amarillo
-    E[Estado de Error: LED Rojo]:::rojo
-    F[Desplegar Menú Principal - Pantalla LED]:::azul
-    G[Leer Registros de Entrada - Bus de Datos]:::morado
-    H{¿Acción del Jugador?}:::amarillo
-    I[Game Loop: Lógica en C y Actualización de Pantalla/Audio]:::azul
-    J{¿Juego Terminado / Pausa?}:::amarillo
+    subgraph Etapa1 [1. Arranque y Diagnóstico]
+        A([Encendido y Reset de FPGA]):::init --> B[Cargar Firmware desde BRAM]:::init
+        B --> C{¿Hardware y Periféricos ok?}:::init
+        C -- No --> D[Bloquear Sistema ]:::err
+        C -- Sí --> E[Inicializar Display LED y Módulo de Audio]:::init
+    end
 
-    A --> B
-    B --> C
-    C --> D
-    D -- No --> E
-    D -- Sí --> F
-    F --> G
-    G --> H
-    H -- No --> G
-    H -- Sí --> I
-    I --> J
-    J -- No --> G
-    J -- Sí --> F
+    subgraph Etapa2 [2. Navegación del Menú]
+        E --> F[Renderizar Menú Principal]:::menu
+        F --> G[/Leer Bus: Registro CSR del Control/]:::menu
+        G --> H{¿Acción del Jugador?}:::menu
+        H -- Mover Cursor --> I[Actualizar Selección en Pantalla]:::menu
+        I --> G
+    end
+
+    subgraph Etapa3 [3. Bucle Principal del Juego]
+        H -- Iniciar Juego --> J[Cargar Lógica y Gráficos del Juego Seleccionado]:::game
+        J --> K[/Capturar Entradas en Tiempo Real/]:::game
+        L --> M{¿Ocurre un Evento?}:::game
+        K --> L[Calcular Posiciones]:::game
+        M -- Sí --> N[Actualizar Puntaje/Vidas y Emitir Sonido]:::game
+        M -- No --> O[Actualizar Framebuffer de Pantalla]:::game
+        N --> O
+        O --> P{¿Partida Terminada o Salida?}:::game
+        P -- Continúa --> K
+        P -- Fin de Juego --> F
+    end
