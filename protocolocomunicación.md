@@ -10,7 +10,7 @@ flowchart TD
     
     %% Fase 1: Tomar la Foto (Solo 1 vez)
     S0 -->|Iniciar lectura| S1[LATCH = 1]:::accion
-    S1 --> S2[Esperar 12 µs]:::accion
+    S1 --> S2[Esperar 160 ns]:::accion
     S2 --> S3[LATCH = 0]:::accion
     
     %% Preparar el bucle
@@ -24,9 +24,9 @@ flowchart TD
     
     %% Repetición (Falta leer botones)
     Cond -- NO (Continúa) --> Clk1[CLOCK = 1]:::loop
-    Clk1 --> W1[Esperar 6 µs]:::loop
+    Clk1 --> W1[Esperar 180 ns]:::loop
     W1 --> Clk0[CLOCK = 0]:::loop
-    Clk0 --> W2[Esperar 6 µs]:::loop
+    Clk0 --> W2[Esperar 180 ns]:::loop
     W2 --> Read
     
     %% Fase 3: Terminar
